@@ -5,6 +5,7 @@ const fs = require('fs');
 const path = require('path');
 const http = require('http');
 const axios = require('axios');
+const { exec } = require('child_process');
 
 const app = express();
 const PORT = 3068; 
@@ -107,7 +108,6 @@ app.get('/api/sfc/details', async (req, res) => {
     res.json(details);
 });
 
-// Production Data Endpoints
 app.get('/api/production', (req, res) => {
     try {
         const data = JSON.parse(fs.readFileSync(DATA_FILE));
@@ -116,6 +116,18 @@ app.get('/api/production', (req, res) => {
         res.json([]);
     }
 });
+
+// Helper to push to github in the background
+const triggerCloudSync = () => {
+    console.log('Triggering cloud sync (pushing to GitHub)...');
+    exec('cp data.json public/data.json && git add public/data.json data.json && git commit -m "chore(data): auto-update dashboard data" && git push origin main', (error, stdout, stderr) => {
+        if (error) {
+            console.error(`Error pushing to GitHub (No changes or network error): ${error.message}`);
+            return;
+        }
+        console.log(`Successfully synced to GitHub. Remote users will see updates soon.`);
+    });
+};
 
 app.post('/api/production', (req, res) => {
     const newWO = req.body;
@@ -127,6 +139,8 @@ app.post('/api/production', (req, res) => {
     data.workOrders.push(newWO);
     fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
     res.json(newWO);
+    
+    triggerCloudSync();
 });
 
 app.put('/api/production/reorder', (req, res) => {
@@ -141,6 +155,8 @@ app.put('/api/production/reorder', (req, res) => {
     data.workOrders = newWorkOrders;
     fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
     res.json({ success: true });
+    
+    triggerCloudSync();
 });
 
 app.put('/api/production/:id', (req, res) => {
@@ -158,6 +174,8 @@ app.put('/api/production/:id', (req, res) => {
     
     fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
     res.json(data.workOrders[index]);
+    
+    triggerCloudSync();
 });
 
 // Sync Status for all active WOs
@@ -181,6 +199,8 @@ app.post('/api/production/sync', async (req, res) => {
         fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
     }
     res.json({ updated: updatedCount });
+    
+    triggerCloudSync();
 });
 
 // Static files (for production build)
