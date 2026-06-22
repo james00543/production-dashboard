@@ -174,61 +174,79 @@ app.put('/api/production/:id', (req, res) => {
     triggerCloudSync();
 });
 
-// Sync Status for all active WOs
-app.post('/api/production/sync', async (req, res) => {
-    const data = JSON.parse(fs.readFileSync(DATA_FILE));
-    let updatedCount = 0;
+async function performDeepSync() {
+    try {
+        console.log('Starting deep SFC sync...');
+        const data = JSON.parse(fs.readFileSync(DATA_FILE));
+        let updatedCount = 0;
 
-    for (let wo of data.workOrders) {
-        if (!wo.isArchived && wo.serialNumbers && wo.serialNumbers.length > 0) {
-            wo.snStatuses = wo.snStatuses || {};
-            for (let sn of wo.serialNumbers) {
-                if (!sn) continue;
-                
-                // Fetch Route
-                const route = await callSfcApi('CheckRoute', { SN: sn, STATION_ID: 'PRET_05', EMP_NO: 'T80969', MODEL_NAME: 'NV_VR200' });
-                if (route) {
-                    let statusMessage = route.CURR_STATION || 'Unknown';
-                    if (route.RESULT && route.RESULT.trim().toUpperCase() === 'OK') {
-                        statusMessage = 'This SN is in test';
-                    } else if (route.RESULT && route.RESULT.includes('OK')) {
-                        statusMessage = 'This SN is in test';
-                    } else if (route.RESULT && route.RESULT.includes('GO-')) {
-                        const stationMatch = route.RESULT.match(/GO-([^ ]+)/);
-                        if (stationMatch && stationMatch[1]) statusMessage = `The SN will be into ${stationMatch[1]} Station`;
-                    } else if (route.RESULT && route.RESULT.startsWith('NG,')) {
-                        const stationMatch = route.RESULT.match(/NG,([A-Za-z0-9_-]+)/);
-                        if (stationMatch && stationMatch[1]) statusMessage = `The SN will be into ${stationMatch[1]} Station`;
-                    }
+        for (let wo of data.workOrders) {
+            if (!wo.isArchived && wo.serialNumbers && wo.serialNumbers.length > 0) {
+                wo.snStatuses = wo.snStatuses || {};
+                for (let sn of wo.serialNumbers) {
+                    if (!sn) continue;
                     
-                    wo.snStatuses[sn] = statusMessage;
-                    if (sn === wo.serialNumbers[0]) {
-                        wo.currentStation = statusMessage;
+                    // Fetch Route
+                    const route = await callSfcApi('CheckRoute', { SN: sn, STATION_ID: 'PRET_05', EMP_NO: 'T80969', MODEL_NAME: 'NV_VR200' });
+                    if (route) {
+                        let statusMessage = route.CURR_STATION || 'Unknown';
+                        if (route.RESULT && route.RESULT.trim().toUpperCase() === 'OK') {
+                            statusMessage = 'This SN is in test';
+                        } else if (route.RESULT && route.RESULT.includes('OK')) {
+                            statusMessage = 'This SN is in test';
+                        } else if (route.RESULT && route.RESULT.includes('GO-')) {
+                            const stationMatch = route.RESULT.match(/GO-([^ ]+)/);
+                            if (stationMatch && stationMatch[1]) statusMessage = `The SN will be into ${stationMatch[1]} Station`;
+                        } else if (route.RESULT && route.RESULT.startsWith('NG,')) {
+                            const stationMatch = route.RESULT.match(/NG,([A-Za-z0-9_-]+)/);
+                            if (stationMatch && stationMatch[1]) {
+                                let station = stationMatch[1];
+                                if (station.includes('(')) station = station.split('(')[0];
+                                statusMessage = `The SN will be into ${station} Station`;
+                            }
+                        }
+                        
+                        if (wo.snStatuses[sn] !== statusMessage) {
+                            wo.snStatuses[sn] = statusMessage;
+                            updatedCount++;
+                        }
                     }
-                    updatedCount++;
-                }
 
-                // Fetch Config if we don't have parts data
-                if (!wo.partNumber || wo.partNumber === 'Unknown' || !wo.description) {
-                    const config = await callSfcApi('GetConfigurations', { SN: sn, STATION_ID: 'IGS_DASHBOARD', PROJECT: 'NV_VR200' });
-                    if (config) {
-                        const configData = config.DATA || config;
-                        wo.partNumber = configData?.Chassis_Part_Number || configData?.PART_NO || configData?.PN || wo.partNumber;
-                        wo.description = configData?.MODEL_NAME || configData?.DESCRIPTION || wo.description;
-                        wo.rev = configData?.REV || configData?.CUSTOM_REV || wo.rev;
-                        wo.pbr = configData?.PBR_NO || wo.pbr;
+                    // Fetch Config
+                    if (wo.mode === 'L10') {
+                        const configData = await callSfcApi('CheckConfig', { SN: sn, STATION_ID: 'PRET_05', EMP_NO: 'T80969', MODEL_NAME: 'NV_VR200' });
+                        if (configData) {
+                            wo.partNumber = configData?.Chassis_Part_Number || configData?.PART_NO || configData?.PN || wo.partNumber;
+                            wo.description = configData?.MODEL_NAME || configData?.DESCRIPTION || wo.description;
+                            wo.rev = configData?.REV || configData?.CUSTOM_REV || wo.rev;
+                            wo.pbr = configData?.PBR_NO || wo.pbr;
+                        }
                     }
                 }
             }
         }
-    }
 
-    if (updatedCount > 0) {
-        fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
+        if (updatedCount > 0) {
+            fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
+            console.log(`Deep sync completed. Updated ${updatedCount} SNs.`);
+            triggerCloudSync();
+        } else {
+            console.log('Deep sync completed. No updates needed.');
+        }
+        return updatedCount;
+    } catch (error) {
+        console.error('Deep sync failed:', error);
+        return 0;
     }
+}
+
+// Auto-sync every 5 minutes (300000 ms)
+setInterval(performDeepSync, 300000);
+
+// Sync Status for all active WOs (Manual Force Sync)
+app.post('/api/production/sync', async (req, res) => {
+    const updatedCount = await performDeepSync();
     res.json({ updated: updatedCount });
-    
-    triggerCloudSync();
 });
 
 // Static files (for production build)
