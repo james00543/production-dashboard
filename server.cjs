@@ -15,10 +15,6 @@ const SFC_API_BASE = 'http://10.16.137.111';
 app.use(cors());
 app.use(bodyParser.json());
 
-// Root route for status
-app.get('/', (req, res) => {
-    res.send('<h1>IGS Dashboard API Server</h1><p>Status: Running</p>');
-});
 
 // Initialize data file if not exists
 if (!fs.existsSync(DATA_FILE)) {
