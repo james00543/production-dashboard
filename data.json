@@ -102,6 +102,26 @@
       }
     },
     {
+      "woNumber": "900000372",
+      "serialNumbers": [
+        "2082226000001",
+        ""
+      ],
+      "demandQty": 0,
+      "notes": "",
+      "mode": "L11",
+      "status": "Pending",
+      "id": "1782162351709",
+      "priority": 6,
+      "snStatuses": {
+        "2082226000001": "The SN will be into SYS_ASSY_3 Station"
+      },
+      "currentStation": "The SN will be into SYS_ASSY_3 Station",
+      "partNumber": "675-24110-0040-TS3",
+      "rev": "E",
+      "pbr": "PB-75715"
+    },
+    {
       "woNumber": "900000052",
       "serialNumbers": [
         "2081926000011",
@@ -114,7 +134,7 @@
       "mode": "L11",
       "status": "Pending",
       "id": "1778695954199",
-      "priority": 6,
+      "priority": 7,
       "snStatuses": {
         "2081926000011": "The SN will be into SHIPPING Station",
         "2081926000012": "The SN will be into SHIPPING Station"
@@ -126,26 +146,6 @@
       "isExpanded": true,
       "description": "NVIDIA Product",
       "isArchived": true
-    },
-    {
-      "woNumber": "900000372",
-      "serialNumbers": [
-        "2082226000001",
-        ""
-      ],
-      "demandQty": 0,
-      "notes": "",
-      "mode": "L11",
-      "status": "Pending",
-      "id": "1782162351709",
-      "priority": 7,
-      "snStatuses": {
-        "2082226000001": "The SN will be into SYS_ASSY_3 Station"
-      },
-      "currentStation": "The SN will be into SYS_ASSY_3 Station",
-      "partNumber": "675-24110-0040-TS3",
-      "rev": "E",
-      "pbr": "PB-75715"
     },
     {
       "woNumber": "900000041",
