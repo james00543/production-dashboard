@@ -153,7 +153,16 @@
       "mode": "L11",
       "status": "Pending",
       "id": "1782168095895",
-      "priority": 8
+      "priority": 8,
+      "snStatuses": {
+        "2082326000004": "The SN will be into SYS_ASSY_5 Station",
+        "2082326000005": "The SN will be into SYS_ASSY_5 Station",
+        "2082326000006": "The SN will be into SYS_ASSY_5 Station"
+      },
+      "currentStation": "The SN will be into SYS_ASSY_5 Station",
+      "partNumber": "675-24110-1120-T4B",
+      "rev": "B",
+      "pbr": "PB-79704"
     },
     {
       "woNumber": "900000041",
@@ -220,7 +229,14 @@
       "mode": "L11",
       "status": "Pending",
       "id": "1782168125514",
-      "priority": 11
+      "priority": 11,
+      "snStatuses": {
+        "2082326000013": "The SN will be into OQC Station"
+      },
+      "currentStation": "The SN will be into OQC Station",
+      "partNumber": "675-24110-0020-TS5",
+      "rev": "U",
+      "pbr": "NA"
     },
     {
       "woNumber": "900000532",
@@ -233,7 +249,15 @@
       "mode": "L11",
       "status": "Pending",
       "id": "1782168147684",
-      "priority": 12
+      "priority": 12,
+      "snStatuses": {
+        "2082326000016": "The SN will be into SYS_ASSY_2 Station",
+        "2082326000017": "The SN will be into SYS_ASSY_1 Station"
+      },
+      "currentStation": "The SN will be into SYS_ASSY_2 Station",
+      "partNumber": "675-24110-1020-TS5",
+      "rev": "K",
+      "pbr": "PB-77475"
     },
     {
       "woNumber": "900000563",
@@ -247,7 +271,16 @@
       "mode": "L11",
       "status": "Pending",
       "id": "1782168174894",
-      "priority": 13
+      "priority": 13,
+      "snStatuses": {
+        "2082426000002": "The SN will be into SYS_ASSY_6 Station",
+        "2082426000003": "The SN will be into SYS_ASSY_6 Station",
+        "2082426000004": "The SN will be into SYS_FLUSH Station"
+      },
+      "currentStation": "The SN will be into SYS_ASSY_6 Station",
+      "partNumber": "675-24110-0027-TS5",
+      "rev": "B",
+      "pbr": "PB-73765"
     },
     {
       "woNumber": "900000564",
@@ -261,7 +294,16 @@
       "mode": "L11",
       "status": "Pending",
       "id": "1782168205630",
-      "priority": 14
+      "priority": 14,
+      "snStatuses": {
+        "2082426000008": "The SN will be into SYS_ASSY_1 Station",
+        "2082426000009": "The SN will be into SYS_ASSY_5 Station",
+        "2082426000010": "The SN will be into SYS_ASSY_1 Station"
+      },
+      "currentStation": "The SN will be into SYS_ASSY_1 Station",
+      "partNumber": "675-24110-0028-TS5",
+      "rev": "B",
+      "pbr": "PB-79664"
     },
     {
       "woNumber": "900000592",
@@ -275,7 +317,16 @@
       "mode": "L11",
       "status": "Pending",
       "id": "1782168236809",
-      "priority": 15
+      "priority": 15,
+      "snStatuses": {
+        "2082426000012": "This SN is in test",
+        "2082426000014": "The SN will be into OQC Station",
+        "2082426000015": "The SN will be into SHIPPING Station"
+      },
+      "currentStation": "This SN is in test",
+      "partNumber": "675-24110-0026-TS5",
+      "rev": "L",
+      "pbr": "PB-63581"
     },
     {
       "woNumber": "900000593",
@@ -289,7 +340,16 @@
       "mode": "L11",
       "status": "Pending",
       "id": "1782168257109",
-      "priority": 16
+      "priority": 16,
+      "snStatuses": {
+        "2082426000016": "This SN is in test",
+        "2082426000017": "The SN will be into SYS_ASSY_1 Station",
+        "2082426000018": "The SN will be into SYS_ASSY_1 Station"
+      },
+      "currentStation": "This SN is in test",
+      "partNumber": "675-24110-0026-TS5",
+      "rev": "L",
+      "pbr": "PB-77460"
     }
   ]
 }
