@@ -234,6 +234,20 @@
       "status": "Pending",
       "id": "1782168147684",
       "priority": 12
+    },
+    {
+      "woNumber": "900000563",
+      "serialNumbers": [
+        "2082426000002",
+        "2082426000003",
+        "2082426000004"
+      ],
+      "demandQty": 0,
+      "notes": "",
+      "mode": "L11",
+      "status": "Pending",
+      "id": "1782168174894",
+      "priority": 13
     }
   ]
 }
