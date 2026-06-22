@@ -544,9 +544,9 @@ const App: React.FC = () => {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.95 }}
                   onClick={() => handleToggleExpand(wo.id)}
-                  className="card group flex items-start gap-8 cursor-pointer relative hover:border-primary/20"
+                  className="card group flex items-start gap-2 md:gap-8 cursor-pointer relative hover:border-primary/20"
                 >
-                  <div className="flex flex-col items-center gap-0.5 pt-1 min-w-[32px] select-none">
+                  <div className="flex flex-col items-center gap-0.5 pt-1 min-w-[20px] md:min-w-[32px] select-none">
                     {!isReadOnly && (
                       <button 
                         onClick={(e) => { e.stopPropagation(); handleMove(wo.id, 'up'); }}
