@@ -4,7 +4,6 @@ import {
   Settings, 
   Plus, 
   ChevronRight, 
-  Search,
   Zap,
   Activity,
   Layers,
