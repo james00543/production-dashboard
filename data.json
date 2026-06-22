@@ -133,7 +133,10 @@
       "currentStation": "The SN will be into SHIPPING Station",
       "partNumber": "675-24110-0040-TS3",
       "rev": "E",
-      "pbr": "PB-75715"
+      "pbr": "PB-75715",
+      "isExpanded": true,
+      "description": "NVIDIA Product",
+      "isArchived": true
     },
     {
       "woNumber": "900000348",
