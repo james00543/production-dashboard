@@ -54,11 +54,11 @@ const App: React.FC = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [isReadOnly, setIsReadOnly] = useState(false);
   const [currentView, setCurrentView] = useState<'Production' | 'Inventory'>('Production');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  const API_URL = 'http://localhost:3068/api';
+  const isReadOnly = window.location.hostname.includes('vercel.app');
+  const API_URL = import.meta.env.DEV ? 'http://localhost:8091/api' : '/api';
 
   const [formData, setFormData] = useState<Partial<WorkOrder>>({
     woNumber: '',
@@ -71,20 +71,19 @@ const App: React.FC = () => {
   });
 
   const fetchWorkOrders = async () => {
-    try {
-      // 1. Try to fetch from the local backend
-      const response = await axios.get(`${API_URL}/production`, { timeout: 3000 });
-      setWorkOrders(response.data);
-      setIsReadOnly(false);
-    } catch (error) {
-      // 2. If the backend is unreachable (e.g. running off-site on Vercel), fallback to the static public file
-      console.log('Backend unreachable, falling back to static read-only data...');
-      setIsReadOnly(true);
+    if (isReadOnly) {
       try {
-        const fallbackResponse = await axios.get('/data.json');
-        setWorkOrders(fallbackResponse.data?.workOrders || []);
-      } catch (fallbackError) {
-        console.error('Failed to fetch fallback data', fallbackError);
+        const response = await axios.get('/data.json');
+        setWorkOrders(response.data?.workOrders || []);
+      } catch (error) {
+        console.error('Failed to fetch static data', error);
+      }
+    } else {
+      try {
+        const response = await axios.get(`${API_URL}/production`);
+        setWorkOrders(response.data);
+      } catch (error) {
+        console.error('Failed to fetch from backend', error);
       }
     }
   };
