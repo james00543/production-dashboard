@@ -638,13 +638,13 @@ const App: React.FC = () => {
                             <p className="text-[10px] font-black text-text-dim uppercase tracking-[0.3em]">Serial Numbers</p>
                             <div className="space-y-2">
                               {wo.serialNumbers?.map(sn => (
-                                <div key={sn} className="flex items-center justify-between py-2 border-b border-white/[0.03] last:border-0 group/sn">
+                                <div key={sn} className="flex flex-col md:flex-row md:items-center justify-between py-3 border-b border-white/[0.03] last:border-0 group/sn gap-2 md:gap-4">
                                   <div className="flex items-center gap-4">
-                                    <div className={`w-1 h-1 rounded-full ${wo.snStatuses?.[sn] ? 'bg-success' : 'bg-white/10'}`} />
+                                    <div className={`w-1 h-1 rounded-full shrink-0 ${wo.snStatuses?.[sn] ? 'bg-success' : 'bg-white/10'}`} />
                                     <span className="font-mono text-sm text-text-muted group-hover/sn:text-text-main transition-colors">{sn}</span>
                                   </div>
                                   {wo.snStatuses?.[sn] && (
-                                    <span className="text-[10px] font-bold text-primary uppercase tracking-wider bg-primary/5 px-3 py-1 rounded-full border border-primary/10">
+                                    <span className="text-[10px] font-bold text-primary uppercase tracking-wider bg-primary/5 px-3 py-1.5 rounded-lg border border-primary/10 w-fit">
                                       {wo.snStatuses[sn]}
                                     </span>
                                   )}
