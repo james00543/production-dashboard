@@ -52,7 +52,10 @@
       "currentStation": "The SN will be into SHIPPING Station",
       "partNumber": "675-24110-0026-TS4",
       "rev": "F",
-      "pbr": "PB-66294"
+      "pbr": "PB-66294",
+      "isExpanded": true,
+      "description": "NVIDIA Product",
+      "isArchived": true
     },
     {
       "woNumber": "900000045",
