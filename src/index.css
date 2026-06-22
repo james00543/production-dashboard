@@ -260,3 +260,69 @@ input, select {
     max-width: 1300px;
   }
 }
+
+/* Missing utility classes */
+.flex-row { flex-direction: row; }
+.flex-wrap { flex-wrap: wrap; }
+.items-start { align-items: flex-start; }
+.shrink-0 { flex-shrink: 0; }
+.min-w-0 { min-width: 0; }
+.min-w-\[200px\] { min-width: 200px; }
+.inset-y-0 { top: 0; bottom: 0; }
+.left-0 { left: 0; }
+.top-4 { top: 1rem; }
+.right-4 { right: 1rem; }
+.-ml-2 { margin-left: -0.5rem; }
+.pr-12 { padding-right: 3rem; }
+.-translate-x-full { transform: translateX(-100%); }
+.translate-x-0 { transform: translateX(0); }
+.text-4xl { font-size: 2.25rem; line-height: 2.5rem; }
+.text-5xl { font-size: 3rem; line-height: 1; }
+.text-2xl { font-size: 1.5rem; line-height: 2rem; }
+
+/* Responsive MD utilities */
+@media (min-width: 768px) {
+  .md\:hidden { display: none; }
+  .md\:flex { display: flex; }
+  .md\:flex-row { flex-direction: row; }
+  .md\:items-center { align-items: center; }
+  .md\:block { display: block; }
+  .md\:inline { display: inline; }
+  
+  .md\:relative { position: relative; }
+  
+  .md\:w-20 { width: 5rem; }
+  .md\:w-64 { width: 16rem; }
+  .md\:w-80 { width: 20rem; }
+  .md\:w-auto { width: auto; }
+  
+  .md\:h-20 { height: 5rem; }
+  
+  .md\:p-0 { padding: 0; }
+  .md\:p-3 { padding: 0.75rem; }
+  .md\:py-0 { padding-top: 0; padding-bottom: 0; }
+  .md\:px-6 { padding-left: 1.5rem; padding-right: 1.5rem; }
+  .md\:pr-0 { padding-right: 0; }
+  
+  .md\:m-0 { margin: 0; }
+  .md\:mt-0 { margin-top: 0; }
+  .md\:ml-0 { margin-left: 0; }
+  .md\:ml-4 { margin-left: 1rem; }
+  
+  .md\:gap-0 { gap: 0; }
+  .md\:gap-6 { gap: 1.5rem; }
+  
+  .md\:grid { display: grid; }
+  .md\:grid-cols-8 { grid-template-columns: repeat(8, minmax(0, 1fr)); }
+  
+  .md\:translate-x-0 { transform: translateX(0); }
+  
+  .md\:top-0 { top: 0; }
+  .md\:right-0 { right: 0; }
+  
+  .md\:bg-transparent { background-color: transparent; }
+  .md\:rounded-none { border-radius: 0; }
+  .md\:border-none { border-style: none; border-width: 0; }
+  .md\:backdrop-blur-none { backdrop-filter: none; -webkit-backdrop-filter: none; }
+  .md\:text-5xl { font-size: 3rem; line-height: 1; }
+}

@@ -85,6 +85,11 @@ app.get('/api/sfc/details', async (req, res) => {
         if (stationMatch && stationMatch[1]) {
             statusMessage = `The SN will be into ${stationMatch[1]} Station`;
         }
+    } else if (route?.RESULT && route.RESULT.startsWith('NG,')) {
+        const stationMatch = route.RESULT.match(/NG,([A-Za-z0-9_-]+)/);
+        if (stationMatch && stationMatch[1]) {
+            statusMessage = `The SN will be into ${stationMatch[1]} Station`;
+        }
     }
 
     // Process and simplify the response

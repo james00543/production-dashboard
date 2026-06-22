@@ -11,7 +11,10 @@ import {
   Edit3,
   X,
   ArrowUp,
-  ArrowDown
+  ArrowDown,
+  Archive,
+  ArchiveRestore,
+  Menu
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
@@ -39,6 +42,7 @@ interface WorkOrder {
   currentStation?: string;
   snStatuses?: Record<string, string>;
   isExpanded?: boolean;
+  isArchived?: boolean;
   notes?: string;
 }
 
@@ -51,6 +55,8 @@ const App: React.FC = () => {
   const [isSyncing, setIsSyncing] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isReadOnly, setIsReadOnly] = useState(false);
+  const [currentView, setCurrentView] = useState<'Production' | 'Inventory'>('Production');
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const API_URL = 'http://localhost:3068/api';
 
@@ -142,6 +148,18 @@ const App: React.FC = () => {
     }
   };
 
+  const handleToggleArchive = async (id: string) => {
+    const wo = workOrders.find(w => w.id === id);
+    if (!wo) return;
+    const updated = { ...wo, isArchived: !wo.isArchived };
+    try {
+      const response = await axios.put(`${API_URL}/production/${id}`, updated);
+      setWorkOrders(prev => prev.map(w => w.id === id ? response.data : w));
+    } catch (error) {
+      console.error('Failed to archive WO', error);
+    }
+  };
+
   const handleMove = async (id: string, direction: 'up' | 'down') => {
     const newWorkOrders = [...workOrders];
     const index = newWorkOrders.findIndex(wo => wo.id === id);
@@ -223,26 +241,42 @@ const App: React.FC = () => {
 
   return (
     <div className="flex w-full min-h-screen">
+      {/* Mobile Overlay */}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <motion.div 
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            onClick={() => setIsMobileMenuOpen(false)}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 md:hidden"
+          />
+        )}
+      </AnimatePresence>
+
       {/* Sidebar */}
-      <aside className={`glass border-r border-white/10 transition-all duration-300 ${isSidebarCollapsed ? 'w-20' : 'w-64'}`}>
-        <div className="p-6 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/30">
-            <Activity className="text-white" size={24} />
+      <aside className={`glass border-r border-white/10 transition-all duration-300 fixed inset-y-0 left-0 z-50 md:relative h-full ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'} ${isSidebarCollapsed ? 'md:w-20' : 'w-64'}`}>
+        <div className="p-6 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/30 shrink-0">
+              <Activity className="text-white" size={24} />
+            </div>
+            {!isSidebarCollapsed && (
+              <motion.span 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="font-bold text-xl tracking-tight"
+              >
+                IGS Dashboard
+              </motion.span>
+            )}
           </div>
-          {!isSidebarCollapsed && (
-            <motion.span 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="font-bold text-xl tracking-tight"
-            >
-              IGS Dashboard
-            </motion.span>
-          )}
+          <button onClick={() => setIsMobileMenuOpen(false)} className="md:hidden p-2 text-text-dim hover:text-white rounded-lg hover:bg-white/5">
+            <X size={20} />
+          </button>
         </div>
 
         <nav className="mt-8 px-4 space-y-2">
-          <SidebarItem icon={<LayoutDashboard size={20} />} label="Production" active collapsed={isSidebarCollapsed} />
-          <SidebarItem icon={<Layers size={20} />} label="Inventory" collapsed={isSidebarCollapsed} />
+          <SidebarItem icon={<LayoutDashboard size={20} />} label="Production" active={currentView === 'Production'} collapsed={isSidebarCollapsed} onClick={() => { setCurrentView('Production'); setIsMobileMenuOpen(false); }} />
+          <SidebarItem icon={<Layers size={20} />} label="Inventory" active={currentView === 'Inventory'} collapsed={isSidebarCollapsed} onClick={() => { setCurrentView('Inventory'); setIsMobileMenuOpen(false); }} />
           <SidebarItem icon={<Monitor size={20} />} label="Monitoring" collapsed={isSidebarCollapsed} />
           <SidebarItem icon={<Settings size={20} />} label="Settings" collapsed={isSidebarCollapsed} />
         </nav>
@@ -251,66 +285,77 @@ const App: React.FC = () => {
       {/* Main Content */}
       <main className="flex-1 flex flex-col overflow-x-hidden">
         {/* Top Header */}
-        <header className="h-20 border-b border-white/5 bg-bg-deep/50 backdrop-blur-md z-10 flex items-center">
-          <div className="dashboard-content flex justify-between items-center w-full">
-            <div className="flex items-center gap-6">
+        <header className="h-auto md:h-20 border-b border-white/5 bg-bg-deep/50 backdrop-blur-md z-10 flex items-center py-4 md:py-0">
+          <div className="dashboard-content flex flex-col md:flex-row justify-between items-start md:items-center w-full gap-4 md:gap-0">
+            <div className="flex flex-wrap items-center gap-4 md:gap-6 w-full md:w-auto">
+              {/* Hamburger Menu */}
+              <button 
+                onClick={() => setIsMobileMenuOpen(true)}
+                className="md:hidden p-2 -ml-2 text-text-dim hover:text-white rounded-lg hover:bg-white/5"
+              >
+                <Menu size={24} />
+              </button>
+
               {/* Sleek Mode Switcher */}
-              <div className="flex gap-2 p-1 bg-black/20 rounded-xl border border-white/5">
+              <div className="flex gap-2 p-1 bg-black/20 rounded-xl border border-white/5 shrink-0">
                 <button 
                   onClick={() => setMode('L10')}
-                  className={`btn ${mode === 'L10' ? 'btn-primary shadow-lg shadow-primary/20' : 'btn-ghost text-text-dim hover:text-text-main'} px-6 py-2`}
+                  className={`btn ${mode === 'L10' ? 'btn-primary shadow-lg shadow-primary/20' : 'btn-ghost text-text-dim hover:text-text-main'} px-4 md:px-6 py-2`}
                 >
                   L10
                 </button>
                 <button 
                   onClick={() => setMode('L11')}
-                  className={`btn ${mode === 'L11' ? 'btn-primary shadow-lg shadow-primary/20' : 'btn-ghost text-text-dim hover:text-text-main'} px-6 py-2`}
+                  className={`btn ${mode === 'L11' ? 'btn-primary shadow-lg shadow-primary/20' : 'btn-ghost text-text-dim hover:text-text-main'} px-4 md:px-6 py-2`}
                 >
                   L11
                 </button>
               </div>
               
-              <div className="flex items-center bg-black/5 dark:bg-black/20 border border-white/10 rounded-xl px-4 py-1.5 focus-within:border-primary/50 transition-all">
+              <div className="flex items-center bg-black/5 dark:bg-black/20 border border-white/10 rounded-xl px-4 py-1.5 focus-within:border-primary/50 transition-all flex-1 min-w-[200px]">
                 <input 
                   type="text" 
                   value={searchQuery}
                   onChange={e => setSearchQuery(e.target.value)}
                   placeholder="Search orders, SNs..." 
-                  className="bg-transparent border-none outline-none text-sm font-medium w-64 focus:w-80 transition-all placeholder:text-text-dim/50 h-8"
+                  className="bg-transparent border-none outline-none text-sm font-medium w-full md:w-64 focus:w-full md:focus:w-80 transition-all placeholder:text-text-dim/50 h-8"
                 />
               </div>
 
-              <div className="h-8 w-[1px] bg-white/10 mx-2" />
+              <div className="hidden md:block h-8 w-[1px] bg-white/10 mx-2" />
 
               {isReadOnly ? (
                 <div className="px-4 py-2 bg-warning/10 border border-warning/20 rounded-xl flex items-center gap-2">
                   <Monitor size={16} className="text-warning" />
-                  <span className="text-xs font-bold text-warning uppercase tracking-wider">Read-Only Mode (Off-Site)</span>
+                  <span className="text-xs font-bold text-warning uppercase tracking-wider hidden md:inline">Read-Only Mode</span>
                 </div>
               ) : (
-                <>
+                <div className="flex items-center gap-2 ml-auto md:ml-0">
                   <button 
                     onClick={handleSyncAll}
                     disabled={isSyncing}
-                    className="btn btn-ghost text-text-dim hover:text-primary transition-all group"
+                    className="btn btn-ghost text-text-dim hover:text-primary transition-all group p-2 md:p-3"
+                    title="Sync Status"
                   >
                     <Activity size={18} className={isSyncing ? 'animate-spin' : 'group-hover:rotate-12'} />
-                    <span className="text-xs font-bold uppercase tracking-wider ml-2">Sync Status</span>
+                    <span className="hidden md:inline text-xs font-bold uppercase tracking-wider ml-2">Sync Status</span>
                   </button>
 
-                  <button 
-                    className="btn btn-primary px-6 shadow-lg shadow-primary/20"
-                    onClick={() => { setIsEditing(false); setFormData({ woNumber: '', serialNumbers: [''], demandQty: 0, notes: '' }); setFormOpen(true); }}
-                  >
-                    <Plus size={18} />
-                    <span>Add Entry</span>
-                  </button>
-                </>
+                  {currentView === 'Production' && (
+                    <button 
+                      className="btn btn-primary px-4 md:px-6 py-2 shadow-lg shadow-primary/20 flex items-center gap-2"
+                      onClick={() => { setIsEditing(false); setFormData({ woNumber: '', serialNumbers: [''], demandQty: 0, notes: '' }); setFormOpen(true); }}
+                    >
+                      <Plus size={18} />
+                      <span className="hidden md:inline">Add Entry</span>
+                    </button>
+                  )}
+                </div>
               )}
             </div>
 
-            <div className="flex items-center gap-4">
-              <div className="text-right hidden md:block">
+            <div className="flex items-center gap-4 hidden md:flex">
+              <div className="text-right">
                 <p className="text-xs text-text-dim font-bold uppercase">SFC Status</p>
                 <p className="text-sm font-semibold text-success flex items-center gap-1.5 justify-end">
                   <span className="w-2 h-2 rounded-full bg-success animate-pulse" /> Connected
@@ -465,13 +510,13 @@ const App: React.FC = () => {
             <header className="mb-12 flex justify-between items-end">
               <div>
                 <p className="text-primary font-semibold text-[10px] uppercase tracking-[0.4em] mb-3">Real-time Manufacturing</p>
-                <h1 className="text-5xl font-black tracking-tighter">{mode} Production</h1>
+                <h1 className="text-4xl md:text-5xl font-black tracking-tighter">{currentView === 'Inventory' ? 'Inventory' : `${mode} Production`}</h1>
               </div>
               
               <div className="flex items-center gap-4 glass px-6 py-3 rounded-2xl border border-white/5">
                 <div className="flex flex-col items-end">
-                  <p className="text-[10px] font-black text-text-dim uppercase tracking-widest">Active Orders</p>
-                  <p className="text-2xl font-black text-primary">{workOrders.filter(w => w.mode === mode).length}</p>
+                  <p className="text-[10px] font-black text-text-dim uppercase tracking-widest">{currentView === 'Inventory' ? 'Archived Orders' : 'Active Orders'}</p>
+                  <p className="text-2xl font-black text-primary">{workOrders.filter(w => w.mode === mode && (currentView === 'Inventory' ? w.isArchived : !w.isArchived)).length}</p>
                 </div>
               </div>
             </header>
@@ -480,6 +525,7 @@ const App: React.FC = () => {
             <AnimatePresence mode="popLayout">
               {workOrders
                 .filter(wo => wo.mode === mode)
+                .filter(wo => currentView === 'Inventory' ? wo.isArchived : !wo.isArchived)
                 .filter(wo => 
                   wo.woNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
                   wo.partNumber?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -517,8 +563,8 @@ const App: React.FC = () => {
                     )}
                   </div>
 
-                  <div className="flex-1 flex flex-col">
-                    <div className="grid grid-cols-8 gap-6 items-center w-full">
+                  <div className="flex-1 flex flex-col w-full min-w-0 pr-12 md:pr-0">
+                    <div className="flex flex-col md:grid md:grid-cols-8 gap-3 md:gap-6 items-start md:items-center w-full">
                       <div>
                         <p className="text-xs text-text-dim uppercase font-bold tracking-widest mb-1">Work Order</p>
                         <p className="font-bold text-lg">{wo.woNumber}</p>
@@ -606,19 +652,31 @@ const App: React.FC = () => {
                     </AnimatePresence>
                   </div>
 
-                  <div className="flex flex-col gap-2 ml-4">
+                  <div className="flex flex-col gap-2 ml-auto md:ml-4 absolute top-4 right-4 md:relative md:top-0 md:right-0">
                     {!isReadOnly && (
+                      <button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleToggleArchive(wo.id);
+                        }}
+                        className="btn btn-ghost p-2 rounded-full hover:bg-warning/10 hover:text-warning bg-black/20 md:bg-transparent"
+                        title={wo.isArchived ? "Unarchive" : "Archive"}
+                      >
+                        {wo.isArchived ? <ArchiveRestore size={18} /> : <Archive size={18} />}
+                      </button>
+                    )}
+                    {!isReadOnly && currentView === 'Production' && (
                       <button 
                         onClick={(e) => {
                           e.stopPropagation();
                           openEditModal(wo);
                         }}
-                        className="btn btn-ghost p-2 rounded-full hover:bg-primary/10 hover:text-primary"
+                        className="btn btn-ghost p-2 rounded-full hover:bg-primary/10 hover:text-primary bg-black/20 md:bg-transparent"
                       >
                         <Edit3 size={18} />
                       </button>
                     )}
-                    <button className="btn btn-ghost p-2 rounded-full">
+                    <button className="btn btn-ghost p-2 rounded-full bg-black/20 md:bg-transparent">
                       <ChevronRight size={20} className={`transition-transform duration-300 ${wo.isExpanded ? 'rotate-90' : ''}`} />
                     </button>
                   </div>
@@ -633,13 +691,16 @@ const App: React.FC = () => {
   );
 };
 
-const SidebarItem: React.FC<{ icon: React.ReactNode, label: string, active?: boolean, collapsed?: boolean }> = ({ 
-  icon, label, active, collapsed 
+const SidebarItem: React.FC<{ icon: React.ReactNode, label: string, active?: boolean, collapsed?: boolean, onClick?: () => void }> = ({ 
+  icon, label, active, collapsed, onClick 
 }) => (
-  <div className={`
-    flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all
-    ${active ? 'bg-primary/10 text-primary border border-primary/20 shadow-inner shadow-primary/5' : 'text-text-muted hover:bg-white/5 hover:text-text-main'}
-  `}>
+  <div 
+    onClick={onClick}
+    className={`
+      flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all
+      ${active ? 'bg-primary/10 text-primary border border-primary/20 shadow-inner shadow-primary/5' : 'text-text-muted hover:bg-white/5 hover:text-text-main'}
+    `}
+  >
     <div className={active ? 'text-primary' : 'text-text-dim'}>
       {icon}
     </div>
