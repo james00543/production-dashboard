@@ -184,13 +184,45 @@ app.post('/api/production/sync', async (req, res) => {
     let updatedCount = 0;
 
     for (let wo of data.workOrders) {
-        // If it's L11, we might have multiple SNs. For now, track the first one or the WO itself.
-        const snToTrack = wo.serialNumbers && wo.serialNumbers[0] ? wo.serialNumbers[0] : null;
-        if (snToTrack) {
-            const route = await callSfcApi('CheckRoute', { SN: snToTrack, STATION_ID: 'IGS_DASHBOARD' });
-            if (route) {
-                wo.currentStation = route.CURR_STATION || wo.currentStation;
-                updatedCount++;
+        if (!wo.isArchived && wo.serialNumbers && wo.serialNumbers.length > 0) {
+            wo.snStatuses = wo.snStatuses || {};
+            for (let sn of wo.serialNumbers) {
+                if (!sn) continue;
+                
+                // Fetch Route
+                const route = await callSfcApi('CheckRoute', { SN: sn, STATION_ID: 'PRET_05', EMP_NO: 'T80969', MODEL_NAME: 'NV_VR200' });
+                if (route) {
+                    let statusMessage = route.CURR_STATION || 'Unknown';
+                    if (route.RESULT && route.RESULT.trim().toUpperCase() === 'OK') {
+                        statusMessage = 'This SN is in test';
+                    } else if (route.RESULT && route.RESULT.includes('OK')) {
+                        statusMessage = 'This SN is in test';
+                    } else if (route.RESULT && route.RESULT.includes('GO-')) {
+                        const stationMatch = route.RESULT.match(/GO-([^ ]+)/);
+                        if (stationMatch && stationMatch[1]) statusMessage = `The SN will be into ${stationMatch[1]} Station`;
+                    } else if (route.RESULT && route.RESULT.startsWith('NG,')) {
+                        const stationMatch = route.RESULT.match(/NG,([A-Za-z0-9_-]+)/);
+                        if (stationMatch && stationMatch[1]) statusMessage = `The SN will be into ${stationMatch[1]} Station`;
+                    }
+                    
+                    wo.snStatuses[sn] = statusMessage;
+                    if (sn === wo.serialNumbers[0]) {
+                        wo.currentStation = statusMessage;
+                    }
+                    updatedCount++;
+                }
+
+                // Fetch Config if we don't have parts data
+                if (!wo.partNumber || wo.partNumber === 'Unknown' || !wo.description) {
+                    const config = await callSfcApi('GetConfigurations', { SN: sn, STATION_ID: 'IGS_DASHBOARD', PROJECT: 'NV_VR200' });
+                    if (config) {
+                        const configData = config.DATA || config;
+                        wo.partNumber = configData?.Chassis_Part_Number || configData?.PART_NO || configData?.PN || wo.partNumber;
+                        wo.description = configData?.MODEL_NAME || configData?.DESCRIPTION || wo.description;
+                        wo.rev = configData?.REV || configData?.CUSTOM_REV || wo.rev;
+                        wo.pbr = configData?.PBR_NO || wo.pbr;
+                    }
+                }
             }
         }
     }

@@ -203,8 +203,13 @@ const App: React.FC = () => {
       w.id === id ? { ...w, isExpanded: !w.isExpanded } : w
     ));
 
-    // If expanding and has SNs, fetch statuses
+    // If expanding and has SNs, fetch statuses (only if not in read-only mode)
     if (!wo.isExpanded && wo.serialNumbers && wo.serialNumbers.length > 0) {
+      if (isReadOnly) {
+        // In read-only mode, we just rely on the synced data.json
+        return;
+      }
+      
       const newStatuses = { ...(wo.snStatuses || {}) };
       let updatedDetails: Partial<WorkOrder> = {};
       
