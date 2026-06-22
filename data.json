@@ -209,6 +209,18 @@
         "2081926000003": "The SN will be into SHIPPING Station",
         "2081926000004": "The SN will be into OQC Station"
       }
+    },
+    {
+      "woNumber": "1240000487",
+      "serialNumbers": [
+        "2082326000013"
+      ],
+      "demandQty": 0,
+      "notes": "",
+      "mode": "L11",
+      "status": "Pending",
+      "id": "1782168125514",
+      "priority": 11
     }
   ]
 }
