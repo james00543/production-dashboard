@@ -122,6 +122,25 @@
       }
     },
     {
+      "woNumber": "900000441",
+      "serialNumbers": [
+        "2082326000003"
+      ],
+      "demandQty": 0,
+      "notes": "",
+      "mode": "L11",
+      "status": "Pending",
+      "id": "1782162375691",
+      "priority": 7,
+      "snStatuses": {
+        "2082326000003": "The SN will be into SYS_ASSY_1 Station"
+      },
+      "currentStation": "The SN will be into SYS_ASSY_1 Station",
+      "partNumber": "675-24110-2026-T4B",
+      "rev": "F",
+      "pbr": "PB-79864"
+    },
+    {
       "woNumber": "900000052",
       "serialNumbers": [
         "2081926000011",
@@ -134,7 +153,7 @@
       "mode": "L11",
       "status": "Pending",
       "id": "1778695954199",
-      "priority": 7,
+      "priority": 8,
       "snStatuses": {
         "2081926000011": "The SN will be into SHIPPING Station",
         "2081926000012": "The SN will be into SHIPPING Station"
@@ -146,25 +165,6 @@
       "isExpanded": true,
       "description": "NVIDIA Product",
       "isArchived": true
-    },
-    {
-      "woNumber": "900000441",
-      "serialNumbers": [
-        "2082326000003"
-      ],
-      "demandQty": 0,
-      "notes": "",
-      "mode": "L11",
-      "status": "Pending",
-      "id": "1782162375691",
-      "priority": 8,
-      "snStatuses": {
-        "2082326000003": "The SN will be into SYS_ASSY_1 Station"
-      },
-      "currentStation": "The SN will be into SYS_ASSY_1 Station",
-      "partNumber": "675-24110-2026-T4B",
-      "rev": "F",
-      "pbr": "PB-79864"
     },
     {
       "woNumber": "900000041",
