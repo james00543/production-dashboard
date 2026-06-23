@@ -545,7 +545,7 @@ const App: React.FC = () => {
                   onClick={() => handleToggleExpand(wo.id)}
                   className="card group flex items-start gap-2 md:gap-8 cursor-pointer relative hover:border-primary/20"
                 >
-                  <div className="flex flex-col items-center gap-0.5 pt-1 min-w-[20px] md:min-w-[32px] select-none">
+                  <div className={`flex flex-col gap-0.5 select-none ${isReadOnly ? 'items-start pt-0 md:min-w-[80px]' : 'items-center pt-1 min-w-[20px] md:min-w-[32px]'}`}>
                     {!isReadOnly && (
                       <button 
                         onClick={(e) => { e.stopPropagation(); handleMove(wo.id, 'up'); }}
@@ -555,7 +555,16 @@ const App: React.FC = () => {
                         <ArrowUp size={24} strokeWidth={3} />
                       </button>
                     )}
-                    <span className="text-[11px] font-black text-primary/40 tracking-tighter">{index + 1}</span>
+                    
+                    {isReadOnly ? (
+                      <div className="flex flex-col items-start">
+                        <p className="text-xs text-text-dim uppercase font-bold tracking-widest mb-1">Priority</p>
+                        <p className="font-bold text-lg text-primary/80">#{index + 1}</p>
+                      </div>
+                    ) : (
+                      <span className="text-[11px] font-black text-primary/40 tracking-tighter">{index + 1}</span>
+                    )}
+
                     {!isReadOnly && (
                       <button 
                         onClick={(e) => { e.stopPropagation(); handleMove(wo.id, 'down'); }}
